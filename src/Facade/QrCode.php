@@ -11,7 +11,7 @@
  * @created 2026.01.16
  */
 
-namespace YourName\QrCode\Facade;
+namespace Twoir\QrCode\Facade;
 
 use Illuminate\Support\Facades\Facade;
 use Twoir\QrCode\Services\QrCode as QrCodeService;
