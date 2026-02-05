@@ -1,7 +1,7 @@
 {
     "name": "twoir/qrcode",
     "description": "A lightweight, expressive QR code generator for Laravel. Generate PNG, SVG, or Base64 images with one line of code.",
-    "keywords": ["qrcode", "hyperf-qrcode", "laravel-qrcode"],
+    "keywords": ["qrcode", "laravel", "laravel-qrcode"],
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -12,11 +12,15 @@
     ],
     "require": {
         "php": "^8.2",
-        "chillerlan/php-qrcode": "^5.0"
+        "chillerlan/php-qrcode": "^5.0",
+        "ext-gd": "*",
+        "illuminate/log": "12.*",
+        "illuminate/support": "12.*"
     },
     "require-dev": {
-        "laravel/framework": "^12.47",
+        "laravel/framework": "12.*",
         "laravel/pint": "^1.27",
+        "orchestra/testbench": "^10.0",
         "phpunit/phpunit": "^12.5"
     },
     "autoload": {
@@ -28,7 +32,10 @@
         "laravel": {
             "providers": [
                 "Twoir\\QrCode\\QrCodeServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "QrCode": "Twoir\\QrCode\\Facade\\QrCode"
+            }
         }
     },
     "config": {

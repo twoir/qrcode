@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trademark Management System (Version 1.0.1)
+ * Trademark Management System
  *
  * Copyright (c) 2019–2026 cighsen02 <xiayu@959602.com>
  *
@@ -15,8 +15,8 @@ namespace Twoir\QrCode\Services;
 
 use chillerlan\QRCode\Output\QROutputInterface;
 use chillerlan\QRCode\QRCode as ChillerlanQRCode;
-use chillerlan\QRCode\QROptions;
-use Illuminate\Support\Facades\Config;
+use chillerlan\Settings\SettingsContainerInterface;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 use function class_exists;
@@ -26,10 +26,10 @@ use function in_array;
 
 class QrCode extends ChillerlanQRCode
 {
-    public function __construct()
-    {
-        $options = new QROptions(Config::get('qrcode'));
-
+    public function __construct(
+        private readonly LoggerInterface $log,
+        ?SettingsContainerInterface $options = null
+    ) {
         parent::__construct($options);
     }
 
@@ -56,12 +56,17 @@ class QrCode extends ChillerlanQRCode
      */
     public function getMimeType(): string
     {
-        $outputInterface = QROutputInterface::MODES[$this->options->outputType] ?? null;
+        $outputType = $this->options->outputType;
+        $outputInterface = QROutputInterface::MODES[$outputType] ?? null;
         if (! $outputInterface || ! class_exists($outputInterface)) {
-            throw new RuntimeException('invalid output module');
+            $message = "Invalid QR output type: {$outputType}";
+            $this->log->error($message, ['available_modes' => array_keys(QROutputInterface::MODES)]);
+            throw new RuntimeException($message);
         }
         if (! in_array(QROutputInterface::class, class_implements($outputInterface), true)) {
-            throw new RuntimeException('output module does not implement QROutputInterface');
+            $message = "Output module does not implement QROutputInterface: {$outputInterface}";
+            $this->log->critical($message, ['implements' => class_implements($outputInterface)]);
+            throw new RuntimeException($message);
         }
 
         return constant($outputInterface.'::MIME_TYPE');

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trademark Management System (Version 1.0.1)
+ * Trademark Management System
  *
  * Copyright (c) 2019–2026 cighsen02 <xiayu@959602.com>
  *
@@ -9,13 +9,11 @@
  * please visit https://www.ubtm.cn.
  *
  * @created 2026.01.16
- * @updated 2026.01.17
  */
 
 namespace Twoir\QrCode\Facade;
 
 use Illuminate\Support\Facades\Facade;
-use Twoir\QrCode\Services\QrCode as QrCodeService;
 
 /**
  * @method static \Twoir\QrCode\Services\QrCode setOutputBase64(bool $enable)
@@ -33,6 +31,6 @@ class QrCode extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return QrCodeService::class;
+        return 'qrcode';
     }
 }
