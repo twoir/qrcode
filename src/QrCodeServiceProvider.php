@@ -8,15 +8,14 @@
  * This software is proprietary. For commercial licensing,
  * please visit https://www.ubtm.cn.
  *
- * @created 2026.01.16
+ * Created at: 2026.01.16
+ * Updated at: 2026.02.08
  */
 
 namespace Twoir\QrCode;
 
 use chillerlan\QRCode\QROptions;
 use Illuminate\Support\ServiceProvider;
-use Psr\Log\LoggerInterface;
-use Twoir\QrCode\Contracts\QrLogger;
 use Twoir\QrCode\Services\QrCode;
 
 class QrCodeServiceProvider extends ServiceProvider
@@ -24,19 +23,11 @@ class QrCodeServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__.'/../config/qrcode.php', 'qrcode');
-        $this->app->singleton(QrLogger::class, function ($app) {
-            return $app->make(LoggerInterface::class);
+        $this->app->bindIf(QROptions::class, static function ($app) {
+            return new QROptions($app->make('config')->get('qrcode'));
         });
-        $this->app->bindIf(QROptions::class, function ($app) {
-            $config = $app->make('config')->get('qrcode');
-
-            return new QROptions($config);
-        });
-        $this->app->singleton(QrCode::class, function ($app) {
-            return new QrCode(
-                $app->make(QrLogger::class),
-                $app->make(QROptions::class)
-            );
+        $this->app->singleton(QrCode::class, static function ($app) {
+            return new QrCode($app->make(QROptions::class));
         });
         $this->app->alias(QrCode::class, 'qrcode');
     }
@@ -53,7 +44,6 @@ class QrCodeServiceProvider extends ServiceProvider
         return [
             QrCode::class,
             'qrcode',
-            QrLogger::class,
             QROptions::class,
         ];
     }

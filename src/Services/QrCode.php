@@ -8,7 +8,8 @@
  * This software is proprietary. For commercial licensing,
  * please visit https://www.ubtm.cn.
  *
- * @created 2026.01.16
+ * Created at: 2026.01.16
+ * Updated at: 2026.02.06
  */
 
 namespace Twoir\QrCode\Services;
@@ -16,7 +17,6 @@ namespace Twoir\QrCode\Services;
 use chillerlan\QRCode\Output\QROutputInterface;
 use chillerlan\QRCode\QRCode as ChillerlanQRCode;
 use chillerlan\Settings\SettingsContainerInterface;
-use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 use function class_exists;
@@ -27,8 +27,7 @@ use function in_array;
 class QrCode extends ChillerlanQRCode
 {
     public function __construct(
-        private readonly LoggerInterface $log,
-        ?SettingsContainerInterface $options = null
+        ?SettingsContainerInterface $options
     ) {
         parent::__construct($options);
     }
@@ -59,14 +58,10 @@ class QrCode extends ChillerlanQRCode
         $outputType = $this->options->outputType;
         $outputInterface = QROutputInterface::MODES[$outputType] ?? null;
         if (! $outputInterface || ! class_exists($outputInterface)) {
-            $message = "Invalid QR output type: {$outputType}";
-            $this->log->error($message, ['available_modes' => array_keys(QROutputInterface::MODES)]);
-            throw new RuntimeException($message);
+            throw new RuntimeException("Invalid QR output type: {$outputType}");
         }
         if (! in_array(QROutputInterface::class, class_implements($outputInterface), true)) {
-            $message = "Output module does not implement QROutputInterface: {$outputInterface}";
-            $this->log->critical($message, ['implements' => class_implements($outputInterface)]);
-            throw new RuntimeException($message);
+            throw new RuntimeException("Output module does not implement QROutputInterface: {$outputInterface}");
         }
 
         return constant($outputInterface.'::MIME_TYPE');
